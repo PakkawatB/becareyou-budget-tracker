@@ -15,7 +15,7 @@
   --gold:#8A6A00; --gold-pale:#F7EFD8;
   --red:#A8121C; --red-pale:#F9E7E4;
   /* Surfaces */
-  --bg:#F7F4EE; --surface:#FFFDF8; --line:#E4DDD0; --line-strong:#CDC3B0;
+  --bg:#F7F4EE; --surface:#FFFDF8; --line:#E4DDD0; --line-strong:#CDC3B0; --track-bg:#EDF2EE;
   /* Text */
   --ink:#1F2A22; --ink-soft:#5A5348;
   /* Expenses are neutral; red is reserved for real problems */
@@ -40,7 +40,7 @@ html[data-theme="dark"]{
   --green-soft:#00E676; --green-pale:#123024;
   --gold:#FFD54F; --gold-pale:#3A3218;
   --red:#FF6B6B; --red-pale:#3A1F1F;
-  --bg:#0D1410; --surface:#161E19; --line:#2A352E; --line-strong:#3D4A42;
+  --bg:#0D1410; --surface:#161E19; --line:#2A352E; --line-strong:#3D4A42; --track-bg:#222D26;
   --ink:#E8F0E9; --ink-soft:#9DAFA3;
   --spend:#C3D2C7;
   --focus:#FFD54F;
@@ -64,8 +64,6 @@ html[data-theme="dark"] .hero{background:linear-gradient(180deg,#14261D,var(--su
 html[data-theme="dark"] .toast{background:#1F2C24;border:1px solid var(--line-strong);}
 html[data-theme="dark"] .sidebar{background:#0A120D;border-right:1px solid var(--line);}
 html[data-theme="dark"] .upload-zone{background:#111A15;}
-html[data-theme="dark"] .rank-track,html[data-theme="dark"] .cmp-track,
-html[data-theme="dark"] .progress-track{background:#222D26;}
 html[data-theme="dark"] .insight{background:#111A15;}
 html[data-theme="dark"] .tx-row.head,html[data-theme="dark"] .brand-name{color:var(--ink);}
 html[data-theme="dark"] .form-row input,html[data-theme="dark"] .form-row select,
@@ -175,8 +173,10 @@ h1{font-size:var(--fs-xl);} h2,h3{font-size:var(--fs-lg);}
 .rank-name{font-size:var(--fs-sm);font-weight:600;display:flex;align-items:center;gap:var(--s2);min-width:0;}
 .rank-name .swatch{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
 .rank-val{font-size:var(--fs-sm);font-weight:700;white-space:nowrap;}
-.rank-track{grid-column:1/-1;background:#EDF2EE;border-radius:var(--r-full);height:12px;overflow:hidden;}
-.rank-fill{height:100%;border-radius:var(--r-full);transition:width var(--dur);}
+/* Shared pill-shaped progress track, reused by rank bars, month comparisons and budget rows */
+.track{background:var(--track-bg);border-radius:var(--r-full);overflow:hidden;}
+.track-fill{height:100%;border-radius:var(--r-full);transition:width var(--dur);}
+.rank-track{grid-column:1/-1;height:12px;}
 
 /* ===== MONTH BARS ===== */
 .bars{display:flex;align-items:flex-end;gap:var(--s3);height:190px;}
@@ -224,8 +224,7 @@ h1{font-size:var(--fs-xl);} h2,h3{font-size:var(--fs-lg);}
 .daily-bar.zero{background:var(--line);}
 .daily-num{font-size:10px;color:var(--ink-soft);margin-top:var(--s1);}
 .cmp-pair{grid-column:1/-1;display:flex;flex-direction:column;gap:3px;}
-.cmp-track{background:#EDF2EE;border-radius:var(--r-full);height:10px;overflow:hidden;}
-.cmp-fill{height:100%;border-radius:var(--r-full);}
+.cmp-track{height:10px;}
 .data-table{width:100%;border-collapse:collapse;margin-top:var(--s3);font-size:var(--fs-sm);}
 .data-table th,.data-table td{text-align:left;padding:var(--s2) var(--s3);border-bottom:1px solid var(--line);}
 .data-table th{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);}
@@ -239,8 +238,7 @@ h1{font-size:var(--fs-xl);} h2,h3{font-size:var(--fs-lg);}
 .budget-table tr:last-child td{border-bottom:none;}
 .cat-cell{display:flex;align-items:center;gap:var(--s2);}
 .cat-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
-.progress-track{background:#EDF2EE;border-radius:var(--r-full);height:10px;width:120px;overflow:hidden;}
-.progress-fill{height:100%;border-radius:var(--r-full);}
+.progress-track{height:10px;width:120px;}
 .amt-red{color:var(--red);font-weight:700;font-variant-numeric:tabular-nums;}
 
 /* ===== TRANSACTIONS ===== */
@@ -1406,8 +1404,8 @@ function renderTagChart(){
     name.appendChild(sw); name.appendChild(nm);
     const val=document.createElement('div'); val.className='rank-val';
     val.textContent = money(amt)+' · '+pct.toFixed(0)+'%';
-    const track=document.createElement('div'); track.className='rank-track';
-    const fill=document.createElement('div'); fill.className='rank-fill';
+    const track=document.createElement('div'); track.className='track rank-track';
+    const fill=document.createElement('div'); fill.className='track-fill';
     fill.style.width=(amt/max*100)+'%'; fill.style.background=colorFor(tag);
     track.appendChild(fill);
     row.appendChild(name); row.appendChild(val); row.appendChild(track);
@@ -1517,8 +1515,8 @@ function renderBudgets(){
     tdBudget.textContent = budget>0 ? money(budget) : '—';
 
     const tdProg=document.createElement('td');
-    const track=document.createElement('div'); track.className='progress-track';
-    const f=document.createElement('div'); f.className='progress-fill';
+    const track=document.createElement('div'); track.className='track progress-track';
+    const f=document.createElement('div'); f.className='track-fill';
     f.style.width=Math.min(100,pct)+'%'; f.style.background=fill;
     track.appendChild(f); tdProg.appendChild(track);
 
@@ -2060,12 +2058,12 @@ function renderCompare(m){
     const val=document.createElement('div'); val.className='rank-val';
     val.textContent = money(r.now) + (r.was>0 ? '  (' + (delta>=0?'+':'\u2212') + money(Math.abs(delta)) + ')' : '');
     const pair=document.createElement('div'); pair.className='cmp-pair';
-    const t1=document.createElement('div'); t1.className='cmp-track';
-    const f1=document.createElement('div'); f1.className='cmp-fill';
+    const t1=document.createElement('div'); t1.className='track cmp-track';
+    const f1=document.createElement('div'); f1.className='track-fill';
     f1.style.width=(r.now/max*100)+'%'; f1.style.background='var(--forest)';
     t1.appendChild(f1);
-    const t2=document.createElement('div'); t2.className='cmp-track';
-    const f2=document.createElement('div'); f2.className='cmp-fill';
+    const t2=document.createElement('div'); t2.className='track cmp-track';
+    const f2=document.createElement('div'); f2.className='track-fill';
     f2.style.width=(r.was/max*100)+'%'; f2.style.background='var(--line-strong)';
     t2.appendChild(f2);
     pair.appendChild(t1); pair.appendChild(t2);
